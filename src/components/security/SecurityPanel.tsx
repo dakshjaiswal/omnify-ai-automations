@@ -11,31 +11,58 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertTriangle, CheckCircle2, Copy, Eye, EyeOff, Key, Lock, RefreshCw, Shield, ShieldAlert, ShieldCheck, User, Users } from "lucide-react";
+import { 
+  AlertTriangle, CheckCircle2, Copy, Eye, EyeOff, Key, Lock, 
+  RefreshCw, Shield, ShieldAlert, ShieldCheck, User, Users, 
+  FileText, History, ListFilter, Printer, Download, Briefcase 
+} from "lucide-react";
 
+// Mock users data
 const users = [
-  { id: 1, name: "Admin User", email: "admin@example.com", role: "Admin", status: "Active" },
-  { id: 2, name: "John Doe", email: "john@example.com", role: "User", status: "Active" },
-  { id: 3, name: "Jane Smith", email: "jane@example.com", role: "User", status: "Invited" },
+  { id: 1, name: "Client Admin", email: "admin@clientcorp.com", role: "Client Admin", status: "Active" },
+  { id: 2, name: "Operations Manager", email: "manager@clientcorp.com", role: "Manager", status: "Active" },
+  { id: 3, name: "Viewer", email: "viewer@clientcorp.com", role: "Viewer", status: "Active" },
+  { id: 4, name: "Pending User", email: "pending@clientcorp.com", role: "Viewer", status: "Invited" },
 ];
 
+// Mock permissions data
 const permissions = [
-  { name: "Dashboard", admin: true, user: true },
-  { name: "Create Workflows", admin: true, user: true },
-  { name: "Edit Workflows", admin: true, user: false },
-  { name: "Delete Workflows", admin: true, user: false },
-  { name: "View Analytics", admin: true, user: true },
-  { name: "Export Data", admin: true, user: false },
-  { name: "Manage Users", admin: true, user: false },
-  { name: "API Access", admin: true, user: false },
-  { name: "Security Settings", admin: true, user: false },
+  { name: "View Dashboard", admin: true, manager: true, viewer: true },
+  { name: "Submit Tasks", admin: true, manager: true, viewer: false },
+  { name: "Edit Tasks", admin: true, manager: true, viewer: false },
+  { name: "Delete Tasks", admin: true, manager: false, viewer: false },
+  { name: "View Analytics", admin: true, manager: true, viewer: true },
+  { name: "Export Data", admin: true, manager: true, viewer: false },
+  { name: "Manage Users", admin: true, manager: false, viewer: false },
+  { name: "API Access", admin: true, manager: false, viewer: false },
+  { name: "Security Settings", admin: true, manager: false, viewer: false },
+  { name: "Access Audit Logs", admin: true, manager: true, viewer: false },
 ];
 
+// Mock audit logs data
+const auditLogs = [
+  { id: "LOG-1428", user: "Client Admin", action: "Updated security settings", resource: "Security", time: "2 min ago" },
+  { id: "LOG-1427", user: "Operations Manager", action: "Submitted new task", resource: "Task Management", time: "15 min ago" },
+  { id: "LOG-1426", user: "Client Admin", action: "Added new user", resource: "User Management", time: "1 hour ago" },
+  { id: "LOG-1425", user: "System", action: "API key rotated", resource: "API Security", time: "3 hours ago" },
+  { id: "LOG-1424", user: "Operations Manager", action: "Exported analytics data", resource: "Analytics", time: "Yesterday" },
+];
+
+// Mock compliance reports
+const complianceReports = [
+  { id: "RPT-GDPR-2025", name: "GDPR Compliance Report", date: "Apr 05, 2025", type: "GDPR", status: "Current" },
+  { id: "RPT-SOC2-2025", name: "SOC 2 Type II Audit", date: "Mar 15, 2025", type: "SOC 2", status: "Current" },
+  { id: "RPT-HIPAA-2025", name: "HIPAA Compliance Assessment", date: "Feb 28, 2025", type: "HIPAA", status: "Current" },
+  { id: "RPT-PCI-2025", name: "PCI DSS Certification", date: "Jan 20, 2025", type: "PCI DSS", status: "Current" },
+];
+
+// Mock auth providers
 const authProviders = [
   { id: "email", name: "Email & Password", enabled: true },
-  { id: "google", name: "Google", enabled: false },
-  { id: "microsoft", name: "Microsoft", enabled: false },
-  { id: "saml", name: "SAML", enabled: false },
+  { id: "google", name: "Google Workspace", enabled: false },
+  { id: "microsoft", name: "Microsoft Entra ID", enabled: false },
+  { id: "saml", name: "SAML 2.0", enabled: false },
+  { id: "okta", name: "Okta", enabled: false },
 ];
 
 export function SecurityPanel() {
@@ -43,12 +70,14 @@ export function SecurityPanel() {
   const [currentAuthProviders, setCurrentAuthProviders] = useState(authProviders);
   const [showApiKey, setShowApiKey] = useState(false);
   const [securitySettings, setSecuritySettings] = useState({
-    mfa: false,
+    mfa: true,
     sessionTimeout: "30",
-    passwordPolicy: "medium",
+    passwordPolicy: "high",
     dataEncryption: true,
     apiAccess: true,
     auditLogging: true,
+    dataIsolation: true,
+    clientDataSegregation: true,
   });
   
   const updateSecuritySetting = (key: string, value: any) => {
@@ -82,7 +111,7 @@ export function SecurityPanel() {
   const generateNewApiKey = () => {
     toast({
       title: "New API key generated",
-      description: "Your new API key has been generated",
+      description: "Your new API key has been generated with updated security parameters",
     });
   };
   
@@ -93,23 +122,31 @@ export function SecurityPanel() {
       description: "The API key has been copied to your clipboard",
     });
   };
+
+  const downloadReport = (reportId: string) => {
+    toast({
+      title: "Report downloaded",
+      description: `Report ${reportId} has been downloaded`,
+    });
+  };
   
   return (
     <div className="space-y-6">
       <Tabs defaultValue="access" className="w-full">
-        <TabsList className="grid grid-cols-4">
+        <TabsList className="grid grid-cols-5">
           <TabsTrigger value="access">Access Control</TabsTrigger>
           <TabsTrigger value="auth">Authentication</TabsTrigger>
           <TabsTrigger value="api">API Security</TabsTrigger>
           <TabsTrigger value="data">Data Protection</TabsTrigger>
+          <TabsTrigger value="compliance">Compliance</TabsTrigger>
         </TabsList>
         
         <TabsContent value="access" className="space-y-6">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Users & Permissions</CardTitle>
+              <CardTitle>Client Portal Access Control</CardTitle>
               <CardDescription>
-                Manage who has access to Omnify and what they can do
+                Manage who has access to your Omnify BPO portal and what they can do
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -141,8 +178,8 @@ export function SecurityPanel() {
                             <TableCell>{user.email}</TableCell>
                             <TableCell>
                               <Badge
-                                variant={user.role === "Admin" ? "default" : "outline"}
-                                className={user.role === "Admin" ? "bg-sidebar-primary" : ""}
+                                variant={user.role === "Client Admin" ? "default" : "outline"}
+                                className={user.role === "Client Admin" ? "bg-sidebar-primary" : ""}
                               >
                                 {user.role}
                               </Badge>
@@ -173,9 +210,9 @@ export function SecurityPanel() {
                 
                 <div>
                   <div className="mb-4">
-                    <h3 className="text-lg font-medium">Permission Roles</h3>
+                    <h3 className="text-lg font-medium">Role-Based Permissions</h3>
                     <p className="text-sm text-muted-foreground">
-                      Configure what different user roles can access
+                      Configure what different roles can access in your client portal
                     </p>
                   </div>
                   
@@ -184,8 +221,9 @@ export function SecurityPanel() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Permission</TableHead>
-                          <TableHead className="text-center">Admin</TableHead>
-                          <TableHead className="text-center">User</TableHead>
+                          <TableHead className="text-center">Client Admin</TableHead>
+                          <TableHead className="text-center">Manager</TableHead>
+                          <TableHead className="text-center">Viewer</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -200,7 +238,14 @@ export function SecurityPanel() {
                               )}
                             </TableCell>
                             <TableCell className="text-center">
-                              {permission.user ? (
+                              {permission.manager ? (
+                                <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto" />
+                              ) : (
+                                <AlertTriangle className="h-5 w-5 text-yellow-500 mx-auto" />
+                              )}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {permission.viewer ? (
                                 <CheckCircle2 className="h-5 w-5 text-green-500 mx-auto" />
                               ) : (
                                 <AlertTriangle className="h-5 w-5 text-yellow-500 mx-auto" />
@@ -222,12 +267,12 @@ export function SecurityPanel() {
             <CardHeader>
               <CardTitle>Authentication Settings</CardTitle>
               <CardDescription>
-                Configure how users authenticate to your Omnify instance
+                Configure how users authenticate to your Omnify BPO client portal
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium mb-4">Authentication Providers</h3>
+                <h3 className="text-lg font-medium mb-4">Enterprise Authentication Providers</h3>
                 <div className="space-y-4">
                   {currentAuthProviders.map((provider) => (
                     <div key={provider.id} className="flex items-center justify-between">
@@ -236,6 +281,7 @@ export function SecurityPanel() {
                         {provider.id === "google" && <span className="mr-2">G</span>}
                         {provider.id === "microsoft" && <span className="mr-2">M</span>}
                         {provider.id === "saml" && <Shield className="h-5 w-5 mr-2" />}
+                        {provider.id === "okta" && <span className="mr-2">O</span>}
                         <Label htmlFor={`provider-${provider.id}`} className="cursor-pointer">
                           {provider.name}
                         </Label>
@@ -260,7 +306,7 @@ export function SecurityPanel() {
                       Multi-factor Authentication
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Require MFA for all users
+                      Require MFA for all client portal users
                     </p>
                   </div>
                   <Switch
@@ -316,7 +362,7 @@ export function SecurityPanel() {
             <CardHeader>
               <CardTitle>API Security</CardTitle>
               <CardDescription>
-                Manage API keys and access control for external services
+                Manage API keys and access control for secure integration with your systems
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -326,7 +372,7 @@ export function SecurityPanel() {
                     Enable API Access
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Allow external systems to connect via API
+                    Allow your systems to connect with Omnify via secure API
                   </p>
                 </div>
                 <Switch
@@ -338,7 +384,7 @@ export function SecurityPanel() {
               
               {securitySettings.apiAccess && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-medium">API Keys</h3>
+                  <h3 className="text-lg font-medium">Client API Keys</h3>
                   
                   <div className="p-4 border rounded-lg bg-card/50">
                     <div className="flex flex-col space-y-2">
@@ -394,7 +440,8 @@ export function SecurityPanel() {
                       <div>
                         <h4 className="text-sm font-medium text-yellow-500">Security Notice</h4>
                         <p className="text-xs text-muted-foreground mt-1">
-                          API keys provide full access to your account. Keep them secure and never share them in public repositories or client-side code.
+                          API keys provide access to your Omnify BPO account and connected systems. Keep them secure 
+                          and never share them in public repositories or client-side code. Keys are rotated automatically every 90 days.
                         </p>
                       </div>
                     </div>
@@ -410,17 +457,17 @@ export function SecurityPanel() {
             <CardHeader>
               <CardTitle>Data Protection</CardTitle>
               <CardDescription>
-                Configure data encryption and compliance settings
+                Configure data encryption, isolation, and compliance settings
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="data-encryption" className="cursor-pointer">
-                    Data Encryption
+                    End-to-End Encryption
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Encrypt all data at rest and in transit
+                    Encrypt all data at rest and in transit with AES-256
                   </p>
                 </div>
                 <Switch
@@ -432,11 +479,27 @@ export function SecurityPanel() {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="audit-logging" className="cursor-pointer">
-                    Audit Logging
+                  <Label htmlFor="data-isolation" className="cursor-pointer">
+                    Client Data Isolation
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Log all user actions for compliance purposes
+                    Maintain complete data separation between client accounts
+                  </p>
+                </div>
+                <Switch
+                  id="data-isolation"
+                  checked={securitySettings.dataIsolation}
+                  onCheckedChange={(v) => updateSecuritySetting("dataIsolation", v)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="audit-logging" className="cursor-pointer">
+                    Comprehensive Audit Logging
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Log all user actions for compliance and security purposes
                   </p>
                 </div>
                 <Switch
@@ -450,37 +513,163 @@ export function SecurityPanel() {
                 <div className="flex">
                   <ShieldCheck className="h-5 w-5 text-sidebar-primary mr-2 flex-shrink-0" />
                   <div>
-                    <h4 className="text-sm font-medium text-sidebar-primary">Enterprise-Grade Security</h4>
+                    <h4 className="text-sm font-medium text-sidebar-primary">Data Residency & Compliance</h4>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Omnify implements industry-standard security protocols including AES-256 encryption, OAuth 2.0, and complies with GDPR, HIPAA, and SOC 2 requirements.
+                      Omnify implements data residency options to comply with regional regulations including GDPR, HIPAA, CCPA, 
+                      and SOC 2. Data is processed in compliance with jurisdictional requirements and can be geographically restricted.
                     </p>
                   </div>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-medium mb-4">Data Retention Policy</h3>
+                <h3 className="text-lg font-medium mb-4">Data Retention & Processing Policy</h3>
                 <RadioGroup
                   value="90days"
                   onValueChange={(v) => console.log(v)}
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="30days" id="retention-30" />
-                    <Label htmlFor="retention-30">30 days</Label>
+                    <Label htmlFor="retention-30">30 days (Recommended for sensitive data)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="90days" id="retention-90" />
-                    <Label htmlFor="retention-90">90 days</Label>
+                    <Label htmlFor="retention-90">90 days (Default)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="1year" id="retention-1year" />
-                    <Label htmlFor="retention-1year">1 year</Label>
+                    <Label htmlFor="retention-1year">1 year (Extended retention)</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="unlimited" id="retention-unlimited" />
-                    <Label htmlFor="retention-unlimited">Unlimited</Label>
+                    <RadioGroupItem value="custom" id="retention-custom" />
+                    <Label htmlFor="retention-custom">Custom policy (Contact support)</Label>
                   </div>
                 </RadioGroup>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="compliance" className="space-y-6">
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle>Compliance & Certification</CardTitle>
+              <CardDescription>
+                Access compliance reports, audits, and security certifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Compliance Reports</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Report ID</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="w-[100px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {complianceReports.map((report) => (
+                        <TableRow key={report.id}>
+                          <TableCell className="font-medium">{report.id}</TableCell>
+                          <TableCell>{report.name}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className="bg-sidebar-primary/20 text-sidebar-primary"
+                            >
+                              {report.type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{report.date}</TableCell>
+                          <TableCell>
+                            <Badge
+                              variant="outline"
+                              className="bg-green-500/20 text-green-500"
+                            >
+                              {report.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => downloadReport(report.id)}
+                            >
+                              <Download className="h-4 w-4 mr-1" />
+                              PDF
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-4">Security Audit Logs</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Log ID</TableHead>
+                        <TableHead>User</TableHead>
+                        <TableHead>Action</TableHead>
+                        <TableHead>Resource</TableHead>
+                        <TableHead>Time</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {auditLogs.map((log) => (
+                        <TableRow key={log.id}>
+                          <TableCell className="font-medium">{log.id}</TableCell>
+                          <TableCell>{log.user}</TableCell>
+                          <TableCell>{log.action}</TableCell>
+                          <TableCell>{log.resource}</TableCell>
+                          <TableCell className="text-muted-foreground">{log.time}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                <div className="mt-4 flex justify-end space-x-2">
+                  <Button variant="outline" size="sm">
+                    <ListFilter className="h-4 w-4 mr-2" />
+                    Filter
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <History className="h-4 w-4 mr-2" />
+                    View All
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Printer className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="rounded-lg border p-4 bg-sidebar-primary/5 border-sidebar-primary/20">
+                <div className="flex">
+                  <Briefcase className="h-5 w-5 text-sidebar-primary mr-2 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-medium text-sidebar-primary">Business Associate Agreement</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      For clients in regulated industries, Omnify offers customized Business Associate Agreements (BAA) 
+                      to ensure compliance with industry regulations. Contact your account manager to request a BAA 
+                      tailored to your organization's specific requirements.
+                    </p>
+                    <Button className="mt-3" variant="outline" size="sm">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Request Custom Agreement
+                    </Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
