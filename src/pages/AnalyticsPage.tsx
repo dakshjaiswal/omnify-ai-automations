@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowDown, ArrowDownload, ArrowUp, BarChart4, Clock, FilePieChart, LineChart, PieChart, RefreshCw } from "lucide-react";
+import { ArrowDown, ArrowUp, BarChart4, Clock, Download, FilePieChart, LineChart, PieChart, RefreshCw } from "lucide-react";
 import { MetricsCard } from "@/components/dashboard/MetricsCard";
 import { ChartComponent } from "@/components/dashboard/ChartComponent";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -61,7 +60,7 @@ const AnalyticsPage = () => {
           </Button>
           
           <Button className="bg-sidebar-primary hover:bg-sidebar-primary/90">
-            <ArrowDownload className="h-4 w-4 mr-2" />
+            <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
         </div>
